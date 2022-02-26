@@ -1,31 +1,41 @@
 // Afficher des chiens !
 
-const API_URL = "https://dog.ceo/api/breeds/image/random/";
-const nbDogsInput = document.querySelector('#nbDogs')
-const getDogsBtn = document.querySelector('#getDogs')
-const wrapper = document.querySelector('#wrapper');
+const slurp = (pointer) => document.querySelector(pointer);
 
-function getDogCard(dogImage) {
-	return `
-		<div class="dog">
-			<img src="${dogImage}"/>
-		</div>
-		`;
-}
+const API_URL = 'https://dog.ceo/api/breeds/image/random/';
 
-async function showDogsNumber() {
-	wrapper.innerHTML=''
-	const dogsNumber = nbDogsInput.value;
-	const API_URL_COMPLETE = API_URL + dogsNumber;
+const nbDogsInput = slurp('#nbDogs');
+const getDogsBtn = slurp('#getDogs');
+const wrapper = slurp('#wrapper');
 
-	const res = await fetch(API_URL_COMPLETE);
-	const data = await res.json()
-	console.log(data)
-	const images = data.message;
-	for(let image of images) {
-		wrapper.innerHTML+=getDogCard(image)
+const DogCard = (url) => {
+	const container = document.createElement('dog');
+	const img = document.createElement('img');
+	img.src = `${url}`;
+	container.append(img);
+	return container;
+};
+
+const getUrl = ({ dogNumber }) => {
+	return `${API_URL}${dogNumber}`;
+};
+
+const showDogsNumber = async () => {
+	try {
+		wrapper.innerHTML = '';
+		const dogNumber = nbDogsInput.value;
+		const API_URL_COMPLETE = getUrl({ dogNumber });
+
+		const res = await fetch(API_URL_COMPLETE);
+		const data = await res.json();
+		console.log(data);
+
+		const { message: imagesUrl } = data;
+		imagesUrl.forEach((url) => wrapper.append(DogCard(url)));
+	} catch (err) {
+		console.error(err);
+		alert(err.message);
 	}
-}
+};
 
-
-getDogsBtn.addEventListener('click', showDogsNumber)
+getDogsBtn.addEventListener('click', showDogsNumber);
